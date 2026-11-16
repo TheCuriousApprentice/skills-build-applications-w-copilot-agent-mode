@@ -54,6 +54,28 @@ export async function seed() {
       { $set: { title: 'Strength Circuit', focus: 'strength', minutes: 30, difficulty: 'moderate' } },
       { upsert: true },
     );
+        // Add a third team and user:
+    const codecats = await Team.findOneAndUpdate(
+      { name: 'Codecats' },
+      { $set: { name: 'Codecats', mascot: 'Copilot' } },
+      { upsert: true, new: true, setDefaultsOnInsert: true },
+    );
+    const copilot = await upsertDemoUser('Copilot', 'copilot@example.com', codecats._id, 'strength');
+    
+    // Add a third activity:
+    const monaWalkAt = new Date('2026-01-12T12:00:00.000Z');
+    await Activity.updateOne(
+      { user: mona._id, team: octocats._id, type: 'walk', occurredAt: monaWalkAt },
+      { $set: { user: mona._id, team: octocats._id, type: 'walk', minutes: 30, points: 30, occurredAt: monaWalkAt } },
+      { upsert: true },
+    );
+    
+    // Add a third workout:
+    await Workout.updateOne(
+      { title: 'Core Focus' },
+      { $set: { title: 'Core Focus', focus: 'strength', minutes: 20, difficulty: 'hard' } },
+      { upsert: true },
+    );
   } finally {
     await disconnectDatabase();
   }
